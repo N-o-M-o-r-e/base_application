@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Base Application</string>
+    <string name="test">TEST LIB</string>
 </resources>

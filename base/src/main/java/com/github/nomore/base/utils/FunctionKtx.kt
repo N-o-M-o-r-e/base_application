@@ -11,10 +11,6 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.target.Target
 import com.github.nomore.base.R
 
-fun Context.toastMessenger(text: String) {
-    Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
-}
-
 fun Context.toastMessenger(textResId: Int) {
     val text = getString(textResId)
     Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
