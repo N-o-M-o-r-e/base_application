@@ -50,5 +50,5 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(project(":base"))
 
-    implementation("com.github.N-o-M-o-r-e:base_application:1.0.1")
+//    implementation("com.github.N-o-M-o-r-e:base_application:1.0.4")
 }

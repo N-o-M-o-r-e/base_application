@@ -13,8 +13,13 @@ import com.github.nomore.base.R
 
 fun Context.toastMessenger(textResId: Int) {
     val text = getString(textResId)
-    Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
+    Toast.makeText(this, text, Toast.LENGTH_LONG).show()
 }
+
+fun logMessenger(textResId: String) {
+    Log.i("__LIB", "logMessenger: $textResId")
+}
+
 
 fun Context.loadImageWithGlide(data: Any, imageView: ImageView) {
     Glide.with(this).load(data).placeholder(R.drawable.ic_place_holder).error(R.drawable.ic_error)

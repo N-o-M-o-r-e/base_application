@@ -3,6 +3,7 @@ package com.github.nomore.baseapplication
 import com.github.nomore.base.BaseActivity
 import com.github.nomore.base.utils.loadImageWithGlide
 import com.github.nomore.base.utils.toastMessenger
+
 import com.github.nomore.baseapplication.databinding.ActivityMainBinding
 
 class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::inflate) {
