@@ -1,22 +1,26 @@
 package com.github.nomore.base
 
+import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Intent
-import android.graphics.Color
 import android.graphics.Rect
-import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowInsetsController
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.viewbinding.ViewBinding
 import androidx.viewpager2.widget.ViewPager2
 import java.io.Serializable
@@ -26,29 +30,47 @@ typealias Inflate<T> = (LayoutInflater, ViewGroup?, Boolean) -> T
 abstract class BaseActivity<Binding : ViewBinding>(private val inflate: Inflate<Binding>) :
     BaseView() {
     protected lateinit var binding: Binding
+    private val noActionBar = true
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    override fun bindView() {
-        binding = inflate(LayoutInflater.from(this), null, false)
-        val mView = binding.root
-        setContentView(mView)
-        actionWindow()
+    sealed class WindowBar {
+        data object FullScreen : WindowBar()
+        data object NoFullScreen : WindowBar()
+        data object FullScreenAndNoActionBar : WindowBar()
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun actionWindow() {
-        // Đặt màu đen cho status bar và navigation bar
-        window.statusBarColor = Color.BLACK
-        window.navigationBarColor = Color.BLACK
+    override fun bindView() {
+        binding = inflate(LayoutInflater.from(this), null, false)
+        val view = binding.root
+        actionWindowView(view, WindowBar.FullScreenAndNoActionBar)
+    }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            window.insetsController?.setSystemBarsAppearance(
-                0,
-                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
-            )
-        } else {
-            @Suppress("DEPRECATION") window.decorView.systemUiVisibility =
-                window.decorView.systemUiVisibility and (View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv() or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR.inv())
+    private fun actionWindowView(view: View, actionWindowBar: WindowBar) {
+        setContentView(view)
+        ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            when (actionWindowBar) {
+                WindowBar.NoFullScreen -> {
+                    v.setPadding(
+                        systemBars.left,
+                        systemBars.top,
+                        systemBars.right,
+                        systemBars.bottom
+                    )
+                }
+
+                WindowBar.FullScreen -> {
+                    v.setPadding(0, 0, 0, 0)
+                }
+
+                WindowBar.FullScreenAndNoActionBar -> {
+                    WindowCompat.setDecorFitsSystemWindows(window, false)
+                    val controller = WindowCompat.getInsetsController(window, window.decorView)
+                    controller.hide(WindowInsetsCompat.Type.systemBars())
+                    controller.systemBarsBehavior =
+                        WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                }
+            }
+            return@setOnApplyWindowInsetsListener insets
         }
     }
 
@@ -73,13 +95,14 @@ abstract class BaseActivity<Binding : ViewBinding>(private val inflate: Inflate<
         }.getOrElse {
             callback(null)
         }
-    }/*
-    * START ACTIVITY WITH RESULT
-    * */
+    }
+    /**
+     * START ACTIVITY WITH RESULT
+     * */
 
-    /*
-    * REQUEST PERMISSION
-    * */
+    /**
+     * REQUEST PERMISSION
+     * */
     private val requestPermissionsLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { results ->
@@ -100,12 +123,14 @@ abstract class BaseActivity<Binding : ViewBinding>(private val inflate: Inflate<
         }
     }
 
+
 }
 
-@Suppress("DEPRECATION")
+
 abstract class BaseView : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         bindView()
         initAds()
         initData()
@@ -126,6 +151,12 @@ abstract class BaseView : AppCompatActivity() {
     protected abstract fun initData()
     protected abstract fun initView()
     protected abstract fun initAction()
+
+    @SuppressLint("MissingSuperCall")
+    override fun onBackPressed() {
+        super.onBackPressedDispatcher.onBackPressed()
+    }
+
 
     /**
      * Note: action user focus view
@@ -148,16 +179,17 @@ abstract class BaseView : AppCompatActivity() {
         return super.dispatchTouchEvent(motionEvent)
     }
 
+    val flagClearOldTask: Int
+        get() = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
 
     protected fun goToNewActivity(
         activity: Class<*>,
         isFinish: Boolean = false,
         key: String = "",
         data: Any? = null,
-        flags: Int? = null // Truyền các flag nếu cần thiết (ví dụ : flagClearOldTask)
+        flags: Int? = null
     ) {
         val intent = Intent(this, activity).apply {
-            // Truyền dữ liệu với key
             if (key.isNotEmpty() && data != null) {
                 when (data) {
                     is Parcelable -> putExtra(key, data)
@@ -166,7 +198,6 @@ abstract class BaseView : AppCompatActivity() {
                 }
             }
 
-            // Thêm các flags nếu có
             flags?.let {
                 addFlags(it)
             }
@@ -179,6 +210,63 @@ abstract class BaseView : AppCompatActivity() {
 
     }
 
+    /**
+     * registerForActivityResult
+     */
+
+    private val resultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data: Intent? = result.data
+                onActivityResultReceived(data) // Gọi hàm callback khi có kết quả
+            }
+        }
+
+    /**
+     * Hàm mở Activity với kết quả trả về
+     */
+    protected fun goToNewActivityForResult(
+        activity: Class<*>, key: String = "", data: Any? = null, flags: Int? = null
+    ) {
+        val intent = Intent(this, activity).apply {
+            if (key.isNotEmpty() && data != null) {
+                when (data) {
+                    is Parcelable -> putExtra(key, data)
+                    is Serializable -> putExtra(key, data)
+                    else -> throw IllegalArgumentException("Data must be Parcelable or Serializable")
+                }
+            }
+            flags?.let { addFlags(it) }
+        }
+        resultLauncher.launch(intent) // Mở Activity và chờ kết quả
+    }
+
+    /**
+     * Callback nhận dữ liệu từ Activity con
+     */
+    protected open fun onActivityResultReceived(data: Intent?) {
+        // Các Activity con có thể override để xử lý kết quả
+
+    }
+
+    /**
+     * Callback nhận dữ liệu từ Activity con
+     */
+    protected open fun returnData(resultCode: Int, keyReturn: String, dataReturn: Any) {
+        val resultIntent = Intent().apply {
+            when (dataReturn) {
+                is Parcelable -> putExtra(keyReturn, dataReturn)
+                is Serializable -> putExtra(keyReturn, dataReturn)
+                else -> throw IllegalArgumentException("Data must be Parcelable or Serializable")
+            }
+        }
+        setResult(resultCode, resultIntent)
+        finish()
+    }
+
+    /**
+     * Lấy dữ liệu từ Intent
+     */
     protected inline fun <reified T> getIntentData(key: String, default: T? = null): T? {
         val data = intent?.extras?.get(key)
         return when {
@@ -207,4 +295,58 @@ abstract class BaseView : AppCompatActivity() {
             }
         }
     }
+
+    protected fun toastMessage(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    protected fun showToast(messageResId: Int) {
+        Toast.makeText(this, getText(messageResId), Toast.LENGTH_SHORT).show()
+    }
+
 }
+
+/**
+ * Các sử dụng registerForActivityResult:
+ *
+ * class MainActivity : BaseActivity() {
+ *
+ *     override fun onCreate(savedInstanceState: Bundle?) {
+ *         super.onCreate(savedInstanceState)
+ *         setContentView(R.layout.activity_main)
+ *
+ *         val btnOpen = findViewById<Button>(R.id.btnOpenActivity)
+ *         btnOpen.setOnClickListener {
+ *             goToNewActivityForResult(SecondActivity::class.java, "EXTRA_MESSAGE", "Hello từ MainActivity!")
+ *         }
+ *     }
+ *
+ *     // Nhận dữ liệu từ SecondActivity
+ *     override fun onActivityResultReceived(data: Intent?) {
+ *         val message = data?.getStringExtra("RESULT_MESSAGE") ?: "Không có dữ liệu"
+ *         Toast.makeText(this, "Kết quả: $message", Toast.LENGTH_SHORT).show()
+ *     }
+ * }
+ *=======================================================
+ * class SecondActivity : BaseActivity() {
+ *
+ *     override fun onCreate(savedInstanceState: Bundle?) {
+ *         super.onCreate(savedInstanceState)
+ *         setContentView(R.layout.activity_second)
+ *
+ *         val message = getIntentData("EXTRA_MESSAGE", "Không có tin nhắn")
+ *         findViewById<TextView>(R.id.tvMessage).text = message
+ *
+ *         findViewById<Button>(R.id.btnSendResult).setOnClickListener {
+ *              val data: String = "Kết quả từ SecondActivity"
+ *             returnData(Activity.RESULT_OK,KEY_RETURN_DATA, data) // Đóng Activity và gửi kết quả về
+ *         }
+ *     }
+ *
+ *     companion object{
+ *         const val KEY_RETURN_DATA = "KEY_RETURN_DATA"
+ *     }
+ * }
+ *
+ *
+ */

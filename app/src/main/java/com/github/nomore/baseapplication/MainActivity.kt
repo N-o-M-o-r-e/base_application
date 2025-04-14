@@ -22,7 +22,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
     override fun initView() {
         loadImageWithGlide(com.github.nomore.base.R.drawable.ic_place_holder, binding.imgTest)
         binding.imgTest.setOnClickListener {
-//            toastMessenger("HEHE")
             toastMessenger(R.string.test)
         }
     }

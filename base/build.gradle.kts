@@ -7,10 +7,9 @@ plugins {
 android {
     namespace = "com.github.nomore.base"
     compileSdk = 35
-
+    version = "1.0.7"
     defaultConfig {
         minSdk = 24
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
@@ -32,7 +31,7 @@ android {
         jvmTarget = "11"
     }
 
-    buildFeatures{
+    buildFeatures {
         viewBinding = true
     }
 
@@ -44,6 +43,9 @@ android {
 publishing {
     publications {
         register<MavenPublication>("release") {
+            groupId = "com.github.nomore.base"
+            artifactId = "base" // Thêm artifactId
+            version = "1.0.7"
             afterEvaluate {
                 from(components["release"])
             }
@@ -51,16 +53,17 @@ publishing {
     }
 }
 
-
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    //Glide
+    // Glide
     implementation(libs.glide)
+    // Lifecycle
+    implementation(libs.androidx.lifecycle.livedata.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.savedstate)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
 }
-
