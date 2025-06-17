@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     id("maven-publish")
+    kotlin("plugin.serialization") version "2.0.21"
+    id("kotlin-parcelize")
 }
 
 android {
@@ -24,6 +26,7 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -34,6 +37,7 @@ android {
 
     buildFeatures{
         viewBinding = true
+        buildConfig = true
     }
 
     publishing {
@@ -62,5 +66,9 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     //Glide
     implementation(libs.glide)
+
+    // Coroutine
+    implementation(libs.kotlinx.coroutines.android)
+    implementation (libs.androidx.lifecycle.viewmodel.ktx)
 }
 

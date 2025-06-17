@@ -1,77 +1,62 @@
 package com.github.nomore.base
 
-import android.content.Intent
 import android.os.Bundle
-import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
-import java.io.Serializable
+import com.github.nomore.base.utils.logV
 
-/**
- * Note: convert view xml to databinding before use
- */
-abstract class BaseFragment<Binding : ViewBinding>(private val inflate: Inflate<Binding>) :
-    Fragment() {
-    protected lateinit var binding: Binding
+typealias _Inflate<T> = (LayoutInflater, ViewGroup?, Boolean) -> T
 
+abstract class BaseFragment<VB : ViewBinding>(
+    private val inflate: _Inflate<VB>
+) : Fragment() {
 
-    protected abstract fun initAds()
+    private var _binding: VB? = null
+    protected val binding: VB
+        get() = _binding ?: throw IllegalStateException(
+            "Binding is only valid between onCreateView and onDestroyView"
+        )
 
-    protected abstract fun initViewModel()
-
-    protected abstract fun initData()
-
-    protected abstract fun initView()
-
-    protected abstract fun initAction()
-
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        logLifecycle("onCreate")
+    }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View? {
-        binding = inflate(inflater, container, false)
-
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = inflate(inflater, container, false)
+        logLifecycle("onCreateView")
         return binding.root
     }
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initAds()
-        initViewModel()
-        initView()
-        initData()
-        initAction()
+        logLifecycle("onViewCreated")
+        onFragmentCreated()
     }
 
-    protected fun goToNewActivity(
-        activity: Class<*>,
-        isFinish: Boolean = false,
-        key: String = "",
-        data: Any? = null,
-        flags: Int? = null // Truyền các flag nếu cần thiết (ví dụ : flagClearOldTask)
-    ) {
-        val intent = Intent(requireActivity(), activity).apply {
-            if (key.isNotEmpty() && data != null) {
-                when (data) {
-                    is Parcelable -> putExtra(key, data)
-                    is Serializable -> putExtra(key, data)
-                    else -> throw IllegalArgumentException("Data must be Parcelable or Serializable")
-                }
-            }
-            flags?.let {
-                addFlags(it)
-            }
-        }
+    protected abstract fun onFragmentCreated()
 
-        startActivity(intent)
-
-        if (isFinish) {
-            requireActivity().finish()
-        }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+        logLifecycle("onDestroyView")
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        logLifecycle("onDestroy")
+    }
+
+    private fun logLifecycle(method: String) {
+        if (BuildConfig.DEBUG) {
+            logV("*${this.javaClass.simpleName}", method)
+        }
+    }
 }

@@ -1,210 +1,206 @@
 package com.github.nomore.base
 
 import android.content.Intent
-import android.graphics.Color
-import android.graphics.Rect
-import android.os.Build
 import android.os.Bundle
-import android.os.Parcelable
 import android.view.LayoutInflater
-import android.view.MotionEvent
-import android.view.View
 import android.view.ViewGroup
-import android.view.WindowInsetsController
-import android.view.inputmethod.InputMethodManager
-import android.widget.EditText
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
+import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewbinding.ViewBinding
-import androidx.viewpager2.widget.ViewPager2
-import java.io.Serializable
+import com.github.nomore.base.utils.StatusBarState
+import com.github.nomore.base.utils.createActivityResultLauncher
+import com.github.nomore.base.utils.getActivityName
+import com.github.nomore.base.utils.launchActivity
+import com.github.nomore.base.utils.launchActivityForResult
+import com.github.nomore.base.utils.logI
+import com.github.nomore.base.utils.setupEdgeToEdgeWithDistinctBars
 
 typealias Inflate<T> = (LayoutInflater, ViewGroup?, Boolean) -> T
 
-abstract class BaseActivity<Binding : ViewBinding>(private val inflate: Inflate<Binding>) :
-    BaseView() {
-    protected lateinit var binding: Binding
+abstract class BaseActivity<Binding : ViewBinding>(private val inflate: Inflate<Binding>) : AppCompatActivity() {
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    override fun bindView() {
-        binding = inflate(LayoutInflater.from(this), null, false)
-        val mView = binding.root
-        setContentView(mView)
-        actionWindow()
+    private var _binding: Binding? = null
+    protected val binding: Binding
+        get() = _binding ?: throw IllegalStateException("Binding can only be used after onCreate() and before onDestroy()")
+
+    // Activity Result Launcher - có thể override để custom callbacks
+    protected open val activityResultLauncher: ActivityResultLauncher<Intent> by lazy {
+        createActivityResultLauncher(
+            onSuccess = { data -> onActivityResultReceived(data) },
+            onCancelled = { onActivityResultCancelled() },
+            onError = { resultCode, data -> onActivityResultError(resultCode, data) }
+        )
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun actionWindow() {
-        // Đặt màu đen cho status bar và navigation bar
-        window.statusBarColor = Color.BLACK
-        window.navigationBarColor = Color.BLACK
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            window.insetsController?.setSystemBarsAppearance(
-                0,
-                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
-            )
-        } else {
-            @Suppress("DEPRECATION") window.decorView.systemUiVisibility =
-                window.decorView.systemUiVisibility and (View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv() or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR.inv())
-        }
-    }
-
-    /**
-     * START ACTIVITY WITH RESULT
-     */
-    private val launcherStartActivityResult =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            val callback = callbackActivityResult
-            callback?.invoke(it)
-            callbackActivityResult = null
-        }
-
-    private var callbackActivityResult: ((result: ActivityResult?) -> Unit)? = null
-
-    fun startActivityWithResult(
-        intent: Intent, callback: (result: ActivityResult?) -> Unit
-    ) {
-        kotlin.runCatching {
-            callbackActivityResult = callback
-            launcherStartActivityResult.launch(intent)
-        }.getOrElse {
-            callback(null)
-        }
-    }/*
-    * START ACTIVITY WITH RESULT
-    * */
-
-    /*
-    * REQUEST PERMISSION
-    * */
-    private val requestPermissionsLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { results ->
-        permissionCallback?.invoke(results.takeIf { it.isNotEmpty() }?.all { it.value } ?: false)
-    }
-
-    private var permissionCallback: ((granted: Boolean) -> Unit)? = null
-
-    fun startRequestPermissions(
-        permissions: Array<String>, callback: (granted: Boolean) -> Unit
-    ) {
-        runCatching {
-            permissionCallback = callback
-            requestPermissionsLauncher.launch(permissions)
-        }.getOrElse {
-            it.printStackTrace()
-            callback(false)
-        }
-    }
-
-}
-
-@Suppress("DEPRECATION")
-abstract class BaseView : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        bindView()
-        initAds()
-        initData()
-        initView()
-        initAction()
-        initViewModel()
+        enableEdgeToEdge()
+        logI("*", "Activity : ${getActivityName(this)}")
+
+        _binding = inflate(LayoutInflater.from(this), null, false)
+        setContentView(binding.root)
+        setupEdgeToEdgeWithDistinctBars(binding.root, StatusBarState.Dark)
+
+        onActivityCreated()
     }
 
+    protected abstract fun onActivityCreated()
+
+    // ==================== Activity Result Helper Methods ====================
 
     /**
-     * Note: Hide both the status bar and the navigation bar
+     * Mở Activity với kết quả trả về
      */
-
-
-    protected abstract fun bindView()
-    protected abstract fun initAds()
-    protected abstract fun initViewModel()
-    protected abstract fun initData()
-    protected abstract fun initView()
-    protected abstract fun initAction()
-
-    /**
-     * Note: action user focus view
-     */
-
-    override fun dispatchTouchEvent(motionEvent: MotionEvent): Boolean {
-        if (motionEvent.action == MotionEvent.ACTION_DOWN) {
-            val view = currentFocus
-            if (view is EditText) {
-                val outRect = Rect()
-                view.getGlobalVisibleRect(outRect)
-                if (!outRect.contains(motionEvent.rawX.toInt(), motionEvent.rawY.toInt())) {
-                    view.clearFocus()
-                    val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0)
-                }
-            }
-        }
-
-        return super.dispatchTouchEvent(motionEvent)
-    }
-
-
-    protected fun goToNewActivity(
+    protected fun goToNewActivityForResult(
         activity: Class<*>,
-        isFinish: Boolean = false,
         key: String = "",
         data: Any? = null,
-        flags: Int? = null // Truyền các flag nếu cần thiết (ví dụ : flagClearOldTask)
+        flags: Int? = null
     ) {
-        val intent = Intent(this, activity).apply {
-            // Truyền dữ liệu với key
-            if (key.isNotEmpty() && data != null) {
-                when (data) {
-                    is Parcelable -> putExtra(key, data)
-                    is Serializable -> putExtra(key, data)
-                    else -> throw IllegalArgumentException("Data must be Parcelable or Serializable")
-                }
-            }
-
-            // Thêm các flags nếu có
-            flags?.let {
-                addFlags(it)
-            }
-        }
-        startActivity(intent)
-
-        if (isFinish) {
-            finish()
-        }
-
+        activityResultLauncher.launchActivity(this, activity, key, data, flags)
     }
 
-    protected inline fun <reified T> getIntentData(key: String, default: T? = null): T? {
-        val data = intent?.extras?.get(key)
-        return when {
-            data is T -> data
-            default != null -> default
-            else -> null
-        }
+    /**
+     * Extension function với type safety cho Activity Result
+     */
+    protected inline fun <reified T : AppCompatActivity> goToActivityForResult(
+        key: String = "",
+        data: Any? = null,
+        flags: Int? = null
+    ) {
+        activityResultLauncher.launchActivityForResult<T>(this, key, data, flags)
     }
 
+    /**
+     * Callback nhận dữ liệu từ Activity con khi thành công
+     */
+    protected open fun onActivityResultReceived(data: Intent?) {
+        // Các Activity con có thể override để xử lý kết quả
+    }
 
-    class FadePageTransformer : ViewPager2.PageTransformer {
-        override fun transformPage(page: View, position: Float) {
-            val pageWidth = page.width
-            if (position < -1) {
-                page.alpha = 0f
-            } else if (position <= 0) {
-                page.alpha = 1f
-                page.translationX = 0f
-                page.scaleX = 1f
-                page.scaleY = 1f
-            } else if (position <= 1) {
-                page.alpha = 1 - position
-                page.translationX = pageWidth * -position
-            } else {
-                page.alpha = 0f
-            }
-        }
+    /**
+     * Callback khi Activity bị cancelled
+     */
+    protected open fun onActivityResultCancelled() {
+        // Các Activity con có thể override để xử lý khi user cancel
+    }
+
+    /**
+     * Callback khi có lỗi xảy ra
+     */
+    protected open fun onActivityResultError(resultCode: Int, data: Intent?) {
+        // Các Activity con có thể override để xử lý error
+        logI("BaseActivity", "Activity result error with code: $resultCode")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
     }
 }
+
+/**
+ * Các ví dụ sử dụng:
+ *
+ * class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::inflate) {
+ *
+ *     override fun onActivityCreated() {
+ *         binding.btnOpenActivity.setOnClickListener {
+ *             // Cách 1: Sử dụng function thông thường
+ *             goToNewActivityForResult(
+ *                 activity = SecondActivity::class.java,
+ *                 key = "EXTRA_MESSAGE",
+ *                 data = "Hello từ MainActivity!"
+ *             )
+ *
+ *             // Cách 2: Sử dụng extension function với type safety
+ *             goToActivityForResult<SecondActivity>(
+ *                 key = "EXTRA_MESSAGE",
+ *                 data = "Hello từ MainActivity!"
+ *             )
+ *
+ *             // Cách 3: Sử dụng function từ FunctionKtx (không cần result)
+ *             goToNewActivity(...)
+ *
+ *             // Cách 4: Thay đổi Window View configuration từ FunctionKtx
+ *             setupFullScreenImmersive(binding.root)
+ *             // hoặc
+ *             setupEdgeToEdgeWithCoatingBars(binding.root)
+ *             // hoặc với màu custom
+ *             setupEdgeToEdgeWithCustomColor(
+ *                 binding.root,
+ *                 ContextCompat.getColor(this@MainActivity, R.color.primary_color),
+ *                 isLightStatusBar = true
+ *             )
+ *         }
+ *     }
+ *
+ *     override fun onActivityResultReceived(data: Intent?) {
+ *         val message = getIntentData<String>("RESULT_MESSAGE") ?: "Không có dữ liệu"
+ *         toastMessage(message)
+ *     }
+ * }
+ *
+ * =======================================================
+ *
+ * class SecondActivity : BaseActivity<ActivitySecondBinding>(ActivitySecondBinding::inflate) {
+ *
+ *     override fun onActivityCreated() {
+ *         val message = getIntentData<String>("EXTRA_MESSAGE") ?: "Không có tin nhắn"
+ *         binding.tvMessage.text = message
+ *
+ *         // Custom window configuration using FunctionKtx
+ *         setupEdgeToEdgeWithCoatingBars(binding.root)
+ *
+ *         binding.btnSendResult.setOnClickListener {
+ *             // Sử dụng function từ FunctionKtx
+ *             returnData(
+ *                 resultCode = RESULT_OK,
+ *                 keyReturn = "RESULT_MESSAGE",
+ *                 dataReturn = "Kết quả từ SecondActivity"
+ *             )
+ *         }
+ *     }
+ * }
+ *
+ * =======================================================
+ *
+ * // Sử dụng trực tiếp từ FunctionKtx (không cần BaseActivity)
+ * class StandaloneActivity : AppCompatActivity() {
+ *
+ *     private lateinit var launcher: ActivityResultLauncher<Intent>
+ *
+ *     override fun onCreate(savedInstanceState: Bundle?) {
+ *         super.onCreate(savedInstanceState)
+ *         setContentView(R.layout.activity_standalone)
+ *
+ *         // Setup window configuration từ FunctionKtx
+ *         setupEdgeToEdgeWithDistinctBars(
+ *             findViewById(R.id.root_view),
+ *             StatusBarState.Light
+ *         )
+ *
+ *         // Tạo launcher với callbacks
+ *         launcher = createActivityResultLauncher(
+ *             onSuccess = { data ->
+ *                 val result = data?.getStringExtra("RESULT") ?: "No data"
+ *                 toastMessage(result)
+ *             },
+ *             onCancelled = { toastMessage("Cancelled") },
+ *             onError = { code, _ -> toastMessage("Error: $code") }
+ *         )
+ *
+ *         // Launch activity
+ *         launcher.launchActivityForResult<TargetActivity>(
+ *             key = "MESSAGE",
+ *             data = "Hello"
+ *         )
+ *
+ *         // Hoặc thay đổi window configuration trong runtime
+ *         findViewById<Button>(R.id.btnFullScreen).setOnClickListener {
+ *             setupFullScreenImmersive(findViewById(R.id.root_view))
+ *         }
+ *     }
+ * }
+ */
