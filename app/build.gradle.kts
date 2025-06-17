@@ -53,5 +53,9 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(project(":base"))
 
+    //lifecycle
+    implementation(libs.androidx.lifecycle.livedata.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.savedstate)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
 //    implementation("com.github.N-o-M-o-r-e:base_application:1.0.4")
 }
