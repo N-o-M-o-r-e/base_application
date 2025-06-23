@@ -11,6 +11,22 @@
     <color name="dark_color">#585858</color>
     <color name="light_color">#E8E7E5</color>
 
+    <!--    color map-->
+    <color name="clm_01">#FFFFFF</color>
+    <color name="clm_02">#3897F0</color>
+    <color name="clm_03">#5EC98D</color>
+    <color name="clm_04">#FDCB5C</color>
+    <color name="clm_05">#FD8D32</color>
+    <color name="clm_06">#ED4956</color>
+    <color name="clm_07">#E5589C</color>
+    <color name="clm_08">#A307BA</color>
+    <color name="clm_09">#ED0013</color>
+    <color name="clm_10">#ED858E</color>
+    <color name="clm_11">#FFD2D3</color>
+    <color name="clm_12">#FFDBB4</color>
+    <color name="clm_13">#FFC382</color>
+    <color name="clm_14">#D28F46</color>
+    <color name="clm_15">#BCBCBC</color>
 
 
 </resources>
