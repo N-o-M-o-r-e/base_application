@@ -36,6 +36,7 @@ fun Activity.setWindowView(
 ) {
     ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
         val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+        WindowInsetsCompat.CONSUMED
         when (actionSystemBars) {
             SystemBarsMode.Coating -> {
                 v.setPadding(0, 0, 0, 0)
@@ -119,6 +120,7 @@ fun Activity.setupEdgeToEdgeWithDistinctBars(
     view: View,
     statusBarState: StatusBarState = StatusBarState.Dark
 ) {
+
     setWindowView(view, SystemBarsMode.Distinct, statusBarState)
 }
 

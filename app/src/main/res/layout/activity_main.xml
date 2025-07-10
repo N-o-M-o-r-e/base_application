@@ -1,103 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:orientation="vertical"
+    >
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Main Activity"
+        android:textColor="@color/black"
+        android:layout_margin="20dp"
+        android:textSize="20sp"
+        android:padding="16dp"
+        style="@style/st_text_500"
+        tools:ignore="HardcodedText"/>
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardTemplate"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="160dp"
+        android:layout_margin="16dp"
         android:layout_marginBottom="16dp"
         app:cardCornerRadius="8dp"
-        app:cardElevation="4dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+        app:cardElevation="4dp">
 
-            <TextView
-                android:id="@+id/tvCurrentTemplate"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Current Template"
-                android:textSize="16sp"
-                android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/tvTemplateId"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="ID: " />
-
-            <TextView
-                android:id="@+id/tvTemplateName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Name: " />
-
-            <TextView
-                android:id="@+id/tvTemplateDesc"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Description: " />
-
-            <TextView
-                android:id="@+id/tvTemplateColors"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Colors: " />
-
-            <TextView
-                android:id="@+id/tvTemplateFontSize"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Font Size: " />
-
-            <TextView
-                android:id="@+id/tvTemplateTags"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Tags: " />
-
-        </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-    <Button
-        android:id="@+id/btnSendToHome"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Send to Home"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cardTemplate" />
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/btnCreate"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_margin="16dp"
+        android:text="Create Data"
+        tools:ignore="HardcodedText" />
 
-    <Button
-        android:id="@+id/btnCreateCustom"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Create Custom"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnSendToHome" />
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/btnSend"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_margin="16dp"
+        android:text="Send Data"
+        tools:ignore="HardcodedText" />
 
-    <Button
-        android:id="@+id/btnReset"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Reset to Default"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnCreateCustom" />
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/btnClear"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_margin="16dp"
+        android:text="Clear Data"
+        tools:ignore="HardcodedText" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.appcompat.widget.LinearLayoutCompat>

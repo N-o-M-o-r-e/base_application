@@ -40,7 +40,7 @@ abstract class BaseActivity<Binding : ViewBinding>(private val inflate: Inflate<
 
         _binding = inflate(LayoutInflater.from(this), null, false)
         setContentView(binding.root)
-        setupEdgeToEdgeWithDistinctBars(binding.root, StatusBarState.Dark)
+        setupEdgeToEdgeWithDistinctBars(binding.root, StatusBarState.Light)
 
         onActivityCreated()
     }

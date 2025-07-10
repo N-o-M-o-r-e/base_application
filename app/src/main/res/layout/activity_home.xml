@@ -1,216 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp">
+        android:text="Home Activity"
+        android:textColor="@color/black"
+        android:layout_margin="20dp"
+        android:textSize="20sp"
+        style="@style/st_text_500"
+        tools:ignore="HardcodedText"/>
 
-        <!-- Received Template Section -->
-        <TextView
-            android:id="@+id/tvReceivedInfo"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="Received Template:"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardTemplate"
+        android:layout_width="match_parent"
+        android:layout_height="160dp"
+        android:layout_margin="4dp"
+        android:layout_marginBottom="16dp"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="4dp">
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardReceived"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="4dp"
-            app:layout_constraintTop_toBottomOf="@id/tvReceivedInfo"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="8dp">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
+    </androidx.cardview.widget.CardView>
 
-                <TextView
-                    android:id="@+id/tvTemplateDetails"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Template Details" />
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/btnReceiver"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="16dp"
+        android:text="Receiver Data"
+        tools:ignore="HardcodedText" />
 
-                <TextView
-                    android:id="@+id/tvTemplateFullInfo"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Full Info"
-                    android:layout_marginTop="8dp"
-                    android:textSize="12sp" />
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/btnSendBack"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="16dp"
+        android:text="Send Back"
+        tools:ignore="HardcodedText" />
 
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/btnClear"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="16dp"
+        android:text="Clear Data"
+        tools:ignore="HardcodedText" />
 
-        <!-- Modification Buttons -->
-        <TextView
-            android:id="@+id/tvModificationTitle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="Modification Options:"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/cardReceived"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="24dp" />
 
-        <Button
-            android:id="@+id/btnModifyName"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="Modify Name"
-            app:layout_constraintTop_toBottomOf="@id/tvModificationTitle"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="8dp" />
-
-        <Button
-            android:id="@+id/btnModifyColors"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="Modify Colors"
-            app:layout_constraintTop_toBottomOf="@id/btnModifyName"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="8dp" />
-
-        <Button
-            android:id="@+id/btnModifyFontSize"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="Modify Font Size"
-            app:layout_constraintTop_toBottomOf="@id/btnModifyColors"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="8dp" />
-
-        <Button
-            android:id="@+id/btnToggleEnabled"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="Toggle Enabled"
-            app:layout_constraintTop_toBottomOf="@id/btnModifyFontSize"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="8dp" />
-
-        <Button
-            android:id="@+id/btnAddTag"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="Add Tag"
-            app:layout_constraintTop_toBottomOf="@id/btnToggleEnabled"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="8dp" />
-
-        <!-- Modified Template Preview -->
-        <TextView
-            android:id="@+id/tvModifiedInfo"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="Modified Template:"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/btnAddTag"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="24dp" />
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardModified"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="4dp"
-            app:layout_constraintTop_toBottomOf="@id/tvModifiedInfo"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="8dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:id="@+id/tvModifiedDetails"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Modified Details" />
-
-                <TextView
-                    android:id="@+id/tvModifiedFullInfo"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Modified Full Info"
-                    android:layout_marginTop="8dp"
-                    android:textSize="12sp" />
-
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-        <!-- Return Buttons -->
-        <TextView
-            android:id="@+id/tvReturnTitle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="Return Options:"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/cardModified"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="24dp" />
-
-        <Button
-            android:id="@+id/btnReturnModified"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="Return Modified Template"
-            android:backgroundTint="#4CAF50"
-            app:layout_constraintTop_toBottomOf="@id/tvReturnTitle"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="8dp" />
-
-        <Button
-            android:id="@+id/btnReturnOriginal"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="Return Original Template"
-            android:backgroundTint="#FF9800"
-            app:layout_constraintTop_toBottomOf="@id/btnReturnModified"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="8dp" />
-
-        <Button
-            android:id="@+id/btnCancel"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="Cancel (No Return)"
-            android:backgroundTint="#F44336"
-            app:layout_constraintTop_toBottomOf="@id/btnReturnOriginal"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="16dp" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</ScrollView>
+</androidx.appcompat.widget.LinearLayoutCompat>
