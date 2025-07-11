@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="ExampleApp" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorSurfaceContainer">@color/white</item>
+        <item name="colorSurfaceContainerLow">@color/white</item>
+        <item name="android:navigationBarColor">@color/white</item>
+        <item name="android:divider">@color/white</item>
+        <item name="colorOnPrimaryFixedVariant">@color/white</item>
+        <item name="colorPrimary">@color/white</item>
+    </style>
+</resources>

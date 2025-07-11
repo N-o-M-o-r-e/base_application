@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#EEEEEE"
+    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".ui.view.container.ContainerFragment">
+
+    <!-- NavHostFragment: home_navigation -->
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/navHostContainer"
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        app:defaultNavHost="true"
+        app:navGraph="@navigation/home_navigation" />
+
+    <!--    BottomNavigationView-->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigationView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:fitsSystemWindows="false"
+        android:paddingBottom="0dp"
+        android:layout_marginBottom="0dp"
+        android:background="@color/white"
+        app:menu="@menu/bottom_navigation" />
+
+
+
+
+</androidx.appcompat.widget.LinearLayoutCompat>
