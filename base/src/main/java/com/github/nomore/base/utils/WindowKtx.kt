@@ -70,7 +70,7 @@ fun Activity.setWindowView(
                 v.setPadding(0, 0, 0, 0)
             }
         }
-        insets
+        WindowInsetsCompat.CONSUMED
     }
 }
 
@@ -109,7 +109,7 @@ fun Activity.setWindowView(
                 v.setPadding(0, 0, 0, 0)
             }
         }
-        insets
+        WindowInsetsCompat.CONSUMED
     }
 }
 
